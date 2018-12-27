@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using System.Linq;
 using StardewModdingAPI;
 using StardewValley;
 using StardewValley.Buildings;
@@ -16,19 +17,15 @@ namespace HuggableScarecrows
         {
             foreach (Building building in Game1.getFarm().buildings)
             {
-                this.Monitor.Log($"Checking Building {building.buildingType.Value}");
+                this.Monitor.VerboseLog($"Checking Building {building.buildingType.Value}");
                 if (building is Coop || building is Barn)
                 {
-                    AnimalHouse indoors = building.indoors.Value as AnimalHouse;
-                    foreach (StardewValley.Object furniture in indoors.Objects.Values)
+                    if (building.indoors.Value is AnimalHouse indoors && indoors.Objects.Values.Any(p => p.Name.Contains("arecrow")))
                     {
-                        if (furniture.Name.Contains("arecrow"))
+                        foreach (FarmAnimal animal in indoors.animals.Values)
                         {
-                            foreach (KeyValuePair<long, FarmAnimal> animal in indoors.animals.Pairs)
-                            {
-                                animal.Value.pet(Game1.MasterPlayer);
-                                this.Monitor.Log("Pet animal");
-                            }
+                            animal.pet(Game1.MasterPlayer);
+                            this.Monitor.VerboseLog($"   Petting {animal.Name}");
                         }
                     }
                 }
